@@ -29,7 +29,7 @@ vertices (G x _) = x
 
 -- (arcos G) es la lista de los arcos de G
 arcos :: Digrafo v -> [(v, v)]
-arcos (G xs y) = concat [ crearTupla n (y n) | n <- xs ]
+arcos (G xs y) = concat [ crearTuplas n (y n) | n <- xs ]
 
 -- (nVertices G) es el número de vértices de G
 nVertices :: Digrafo v -> Int
@@ -37,7 +37,7 @@ nVertices (G x _) = length x
 
 -- (nArcos G) es el número de arcos de G
 nArcos :: Digrafo v -> Int
-nArcos (G xs y) = length (concat [ crearTupla n (y n) | n <- xs ])
+nArcos (G xs y) = length (concat [ crearTuplas n (y n) | n <- xs ])
 
 -- (sucesores G x) es la lista de sucesores directos del vértice x en G
 sucesores :: Eq v => Digrafo v -> v -> [v]
@@ -61,7 +61,7 @@ depthFirstSearch (G xs y) n = depthSearch [] [n] y
 
 -- (topologicalSort G) es la lista que corresponde con el ordenamiento topológico de G
 topologicalSort :: Eq v => Digrafo v -> [v]
-topologicalSort (G xs y) = topoSort xs (concat [ crearTupla n (y n) | n <- xs ])
+topologicalSort (G xs y) = topoSort xs (concat [ crearTuplas n (y n) | n <- xs ])
 
 
 -- ............................................................................................... --
@@ -74,11 +74,11 @@ topologicalSort (G xs y) = topoSort xs (concat [ crearTupla n (y n) | n <- xs ])
 
 
 -- toma un vertice y sus sucesores y lo comvierte a una lista de tuplas de la forma (vertice , arcoN)
-crearTupla :: v -> [v] -> [(v,v)]
-crearTupla n arco = do 
-            let len = length arco           -- consiguiendo la cantidad de arcos
-            let vertice = replicate len n   -- replicando en una lista el vertice [vertice,vertice,....,vertice * longitud arcos]
-            zip vertice arco                -- creando la lista de arcos
+crearTuplas :: v -> [v] -> [(v,v)]
+crearTuplas n listArcos = do 
+            let k = length listArcos        -- cuenta los arcos para saber la longitud de la lista
+            let listVerts = replicate k n   -- replica k veces el vertice n en una lista length([n, n,..., n]) = k
+            zip listVerts listArcos         -- crea una lista de tuplas [(n,a1),(n,a2),...,(n,ak-1),(n, ak)]
 
 
 -- genera una lista de vertices partiendo de un vertice y realizando una buqueda en profundidad
