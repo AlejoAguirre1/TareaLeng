@@ -57,11 +57,11 @@ gradoEnt (G xs y) n = length [ x | x <- xs, n `elem` y x ]
 
 -- (depthFirstSearch G x) es la lista de todos los vértices alcanzables desde x en G, aplicando búsqueda en profundidad
 depthFirstSearch :: Eq v => Digrafo v -> v -> [v]
-depthFirstSearch (G xs y) n = depthSearch [] [n] y
+depthFirstSearch (G xs y) n = busquedaAux [] [n] y
 
 -- (topologicalSort G) es la lista que corresponde con el ordenamiento topológico de G
 topologicalSort :: Eq v => Digrafo v -> [v]
-topologicalSort (G xs y) = topoSort xs (concat [ crearTuplas n (y n) | n <- xs ])
+topologicalSort (G xs y) = sortAux xs (concat [ crearTuplas n (y n) | n <- xs ])
 
 
 -- ............................................................................................... --
@@ -82,32 +82,32 @@ crearTuplas n listArcos = do
 
 
 -- genera una lista de vertices partiendo de un vertice y realizando una buqueda en profundidad
-depthSearch :: Eq v => [v] -> [v] -> (v -> [v]) -> [v]
-depthSearch solucion verticesSucesores y = if null verticesSucesores            -- se conprueba si la lista de vertices sucesores esta vacia
-                                                    then solucion               -- si se encuentra vacia de se devuelve la lista solucion
-                                                    else if (head verticesSucesores) `elem` solucion            -- si no esta vacia se comprueba si el vertice ya esta e la lista solucion
-                                                        then depthSearch solucion (tail verticesSucesores) y    -- si se encuentra se quita de la lista de vertices sucesores y se llama a depthSearch
-                                                        else depthSearch (solucion ++ take 1 verticesSucesores) ((y (head verticesSucesores)) ++ tail verticesSucesores ) y   -- si no esta se agrega a la lista solucion y se agragan sus sucesores a la lista de vertices sucesores y se llama a depthSearch
+busquedaAux :: Eq v => [v] -> [v] -> (v -> [v]) -> [v]
+busquedaAux sol verticesSucesores y = if null verticesSucesores            -- se conprueba si la lista de vertices sucesores esta vacia
+                                                    then sol               -- si se encuentra vacia de se devuelve la lista sol
+                                                    else if (head verticesSucesores) `elem` sol            -- si no esta vacia se comprueba si el vertice ya esta e la lista sol
+                                                        then busquedaAux sol (tail verticesSucesores) y    -- si se encuentra se quita de la lista de vertices sucesores y se llama a busquedaAux
+                                                        else busquedaAux (sol ++ take 1 verticesSucesores) ((y (head verticesSucesores)) ++ tail verticesSucesores ) y   -- si no esta se agrega a la lista sol y se agragan sus sucesores a la lista de vertices sucesores y se llama a busquedaAux
 
 -- genera una lista con vertices ordenados topologicamente
-topoSort :: Eq v => [v] -> [(v,v)] -> [v]
-topoSort vertice arco = do
+sortAux :: Eq v => [v] -> [(v,v)] -> [v]
+sortAux vertice arco = do
                     if null vertice -- se comprueba si existen vertices
                         then []     -- si no existen vertices se retorna una lista vacia
                         else do 
-                            let solucion = conseguirSolucion vertice arco --se obtinen los primeros vertices que no tienen antecesores
-                            solucion ++ conseguirSolucion (vertice \\ solucion) (eliminarArcos solucion arco)    -- se llama recusivamente eliminando los vertices sin antesesores y sus arcos respectivamente
+                            let sol = hallarSol vertice arco --se obtinen los primeros vertices que no tienen antecesores
+                            sol ++ hallarSol (vertice \\ sol) (quitarArcos sol arco)    -- se llama recusivamente eliminando los vertices sin antesesores y sus arcos respectivamente
 
 
 -- regresa una lista con los vertices que no tienen antecesores
-conseguirSolucion :: Eq v => [v] -> [(v,v)] -> [v]
-conseguirSolucion vertice arco = do
+hallarSol :: Eq v => [v] -> [(v,v)] -> [v]
+hallarSol vertice arco = do
                         if null vertice     -- se verifica que existan vertices
                             then vertice    -- si no existen vertices se retorna una lista vacia
                             else if null [ y | x <- arco , y <- take 1 vertice , y == snd x ]   -- se verifica si el primer vertice tiene antesesores
                                     then vertice                                                -- si no tiene antesesores se retorna la lista
-                                    else conseguirSolucion (tail vertice) arco                   -- si tiene antesesores se quita de la lista y se llama recursivamente
+                                    else hallarSol (tail vertice) arco                   -- si tiene antesesores se quita de la lista y se llama recursivamente
 
 -- elimna las tuplas de arcos de una lista de vertices                        
-eliminarArcos :: Eq v => [v] -> [(v,v)] -> [(v,v)]
-eliminarArcos vertice arco = [ x | x <- arco , y <- take 1 vertice, y /= fst x ] -- busca en cada elemnto de una lista de vertices y elimna las tuplas que contengan sus arcos
+quitarArcos :: Eq v => [v] -> [(v,v)] -> [(v,v)]
+quitarArcos vertice arco = [ x | x <- arco , y <- take 1 vertice, y /= fst x ] -- busca en cada elemnto de una lista de vertices y elimna las tuplas que contengan sus arcos
