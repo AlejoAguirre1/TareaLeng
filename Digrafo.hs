@@ -4,7 +4,7 @@
 --     V-27.129.140 
 
 --     Javier Castrillo
---     V-27. 
+--     V-27.372.931
 -}
 
 module Digrafo (Digrafo(G),
